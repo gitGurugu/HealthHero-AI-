@@ -1,13 +1,13 @@
 from typing import Dict, List
-from app.services.ai_service import AIAssistant
+from app.services.base import AIBase
 from app.services.rag_service import RAGService
 import logging
 
 logger = logging.getLogger(__name__)
 
 class HealthAgent:
-    def __init__(self, ai_assistant: AIAssistant):
-        self.ai_assistant = ai_assistant
+    def __init__(self, ai_service: AIBase):
+        self.ai_service = ai_service
         self.rag = RAGService()
         
         # 定义任务类型和对应的处理方法
@@ -58,7 +58,7 @@ class HealthAgent:
         
         请基于以上信息进行分析并给出个性化的饮食建议。
         """
-        return await self.ai_assistant.get_response(analysis_prompt)
+        return await self.ai_service.get_response(analysis_prompt)
 
     async def _plan_exercise(self, message: str, user_data: Dict, context: str) -> str:
         """制定个性化运动计划"""
@@ -76,7 +76,7 @@ class HealthAgent:
         
         请基于以上信息制定安全、科学、个性化的运动计划。
         """
-        return await self.ai_assistant.get_response(plan_prompt)
+        return await self.ai_service.get_response(plan_prompt)
 
     async def _sleep_advice(self, message: str, user_data: Dict, context: str) -> str:
         """提供睡眠建议"""
@@ -93,7 +93,7 @@ class HealthAgent:
         
         请基于以上信息提供个性化的睡眠改善建议。
         """
-        return await self.ai_assistant.get_response(sleep_prompt)
+        return await self.ai_service.get_response(sleep_prompt)
 
     async def _query_knowledge(self, message: str, user_data: Dict, context: str) -> str:
         """查询健康知识"""
@@ -105,7 +105,7 @@ class HealthAgent:
         
         请基于参考知识和专业见解回答用户问题。如果信息不足，可以补充其他相关的专业知识。
         """
-        return await self.ai_assistant.get_response(knowledge_prompt)
+        return await self.ai_service.get_response(knowledge_prompt)
 
     async def _handle_general_query(self, message: str, context: str) -> str:
         """处理通用健康查询"""
@@ -120,7 +120,7 @@ class HealthAgent:
         2. 对于需要就医的情况，建议用户及时就医
         3. 保持答复的科学性和可操作性
         """
-        return await self.ai_assistant.get_response(general_prompt)
+        return await self.ai_service.get_response(general_prompt)
 
     def _identify_task(self, message: str) -> str:
         """识别用户请求的任务类型"""

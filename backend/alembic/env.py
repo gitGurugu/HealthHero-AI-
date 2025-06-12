@@ -13,8 +13,8 @@ from alembic import context
 # 导入配置和模型
 from app.core.config import settings
 from app.models.base import Base  # 这里导入包含所有模型的 Base
-from app.models.user import User
-from app.models.vector_store import VectorStore 
+# 导入所有模型以确保它们被注册到 metadata 中
+from app.models import *  # 这会导入所有模型 
 # this is the Alembic Config object
 config = context.config
 

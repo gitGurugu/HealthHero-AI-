@@ -1,13 +1,16 @@
 from openai import AsyncOpenAI
 from app.core.config import settings
 from app.services.rag_service import RAGService
+from app.services.base import AIBase
 import logging
 from fastapi import HTTPException
+from typing import Optional, Dict
+import importlib
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-class AIAssistant:
+class AIAssistant(AIBase):
     def __init__(self):
         # 设置 OpenAI API 配置
         base_url = settings.OPENAI_BASE_URL.rstrip('/')
@@ -22,6 +25,10 @@ class AIAssistant:
         # 初始化 RAG 服务
         self.rag = RAGService()
         
+        # 延迟导入 HealthAgent
+        HealthAgent = importlib.import_module('app.services.health_agent').HealthAgent
+        self.health_agent = HealthAgent(self)
+
         self.system_prompt = """
         你是一个专业的健康助手。请基于提供的参考信息来回答用户的问题。
         如果参考信息不足以完整回答问题，可以补充其他相关的专业知识。
@@ -34,18 +41,22 @@ class AIAssistant:
         5. 不要提供医疗诊断或治疗建议
         """
 
-    async def get_response(self, message: str) -> str:
+    async def get_response(self, message: str, user_data: Optional[Dict] = None) -> str:
+        """
+        获取 AI 回答，如果提供了用户数据，则使用 HealthAgent 处理
+        """
         try:
-            # 1. 使用 RAG 检索相关内容
+            # 如果有用户数据，使用 HealthAgent 处理
+            if user_data is not None:
+                return await self.health_agent.process_request(message, user_data)
+
+            # 否则使用普通的 RAG 处理
             similar_docs = await self.rag.search_similar(message, k=3)
-            
-            # 2. 构建上下文
             context = "\n\n".join([
                 f"参考信息 {i+1}：{doc['content']}"
                 for i, doc in enumerate(similar_docs)
             ])
             
-            # 3. 构建完整的 prompt
             messages = [
                 {"role": "system", "content": self.system_prompt},
                 {"role": "user", "content": f"""
@@ -59,7 +70,6 @@ class AIAssistant:
                 """}
             ]
             
-            # 4. 调用 OpenAI API
             response = await self.client.chat.completions.create(
                 model=settings.OPENAI_MODEL,
                 messages=messages,
