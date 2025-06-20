@@ -9,6 +9,7 @@ from app.core.middleware import setup_middlewares
 from app.db.init_db import init_db
 from app.db.session import get_db
 from fastapi.staticfiles import StaticFiles
+
 # 设置日志
 setup_logging()
 
@@ -45,6 +46,7 @@ app.add_middleware(
 )
 # 包含API路由
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
 
 @app.get("/")
 async def root():

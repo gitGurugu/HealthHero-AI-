@@ -12,10 +12,7 @@ class User(Base):
     
     # 关系定义
     health_data = relationship("HealthData", back_populates="user", cascade="all, delete-orphan")
-    diet_records = relationship("DietRecord", back_populates="user", cascade="all, delete-orphan")
     exercise_logs = relationship("ExerciseLog", back_populates="user", cascade="all, delete-orphan")
     sleep_records = relationship("SleepRecord", back_populates="user", cascade="all, delete-orphan")
     health_goals = relationship("HealthGoal", back_populates="user", cascade="all, delete-orphan")
     symptom_records = relationship("SymptomRecord", back_populates="user", cascade="all, delete-orphan")
-    body_measurements = relationship("BodyMeasurement", back_populates="user", cascade="all, delete-orphan")
-    health_reminders = relationship("HealthReminder", back_populates="user", cascade="all, delete-orphan")

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthHero AI - 健康仪表盘</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-heartbeat"></i>
+                    <span>HealthHero AI</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="nav-item active">
+                        <a href="#overview" class="nav-link" data-section="overview">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>概览</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#health-data" class="nav-link" data-section="health-data">
+                            <i class="fas fa-chart-line"></i>
+                            <span>健康数据</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#exercise" class="nav-link" data-section="exercise">
+                            <i class="fas fa-dumbbell"></i>
+                            <span>运动记录</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#sleep" class="nav-link" data-section="sleep">
+                            <i class="fas fa-moon"></i>
+                            <span>睡眠记录</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="ai-assistant.html" class="nav-link ai-assistant-link">
+                            <i class="fas fa-robot"></i>
+                            <span>AI健康助手</span>
+                            <small class="nav-badge">NEW</small>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="health-dashboard.html" class="nav-link health-dashboard-link">
+                            <i class="fas fa-chart-line"></i>
+                            <span>数据大屏</span>
+                            <small class="nav-badge">HOT</small>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>退出登录</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- 主内容区域 -->
+        <main class="main-content">
+            <!-- 顶部导航栏 -->
+            <header class="top-header">
+                <div class="header-left">
+                    <h1 class="page-title">健康仪表盘</h1>
+                </div>
+                
+                <div class="header-right">
+                    <div class="user-info">
+                        <span class="user-name" id="userName">用户</span>
+                        <small id="userIdDebug" style="color: #666; font-size: 12px; margin-left: 10px;"></small>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 内容区域 -->
+            <div class="content-area">
+                <!-- 概览页面 -->
+                <section id="overview-section" class="content-section active">
+                    <div class="section-header">
+                        <h2>健康概览</h2>
+                        <div class="date-range">
+                            <span id="currentDate"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- 统计卡片 -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon health">
+                                <i class="fas fa-heartbeat"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>健康记录</h3>
+                                <p class="stat-number" id="healthRecordsCount">0</p>
+                                <span class="stat-label">条记录</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon exercise">
+                                <i class="fas fa-dumbbell"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>运动记录</h3>
+                                <p class="stat-number" id="exerciseRecordsCount">0</p>
+                                <span class="stat-label">次运动</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon sleep">
+                                <i class="fas fa-moon"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3>睡眠记录</h3>
+                                <p class="stat-number" id="sleepRecordsCount">0</p>
+                                <span class="stat-label">天记录</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 最近记录 -->
+                    <div class="recent-records">
+                        <div class="records-grid">
+                            <div class="record-card">
+                                <h3>最新健康数据</h3>
+                                <div id="recentHealthData" class="record-content">
+                                    <p class="no-data">暂无数据</p>
+                                </div>
+                            </div>
+                            
+                            <div class="record-card">
+                                <h3>最新运动记录</h3>
+                                <div id="recentExercise" class="record-content">
+                                    <p class="no-data">暂无数据</p>
+                                </div>
+                            </div>
+                            
+                            <div class="record-card">
+                                <h3>最新睡眠记录</h3>
+                                <div id="recentSleep" class="record-content">
+                                    <p class="no-data">暂无数据</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 健康数据页面 -->
+                <section id="health-data-section" class="content-section">
+                    <div class="section-header">
+                        <h2>健康数据管理</h2>
+                        <button class="btn btn-primary" onclick="showAddHealthDataModal()">
+                            <i class="fas fa-plus"></i> 添加记录
+                        </button>
+                    </div>
+                    
+                    <div class="data-table-container">
+                        <table class="data-table" id="healthDataTable">
+                            <thead>
+                                <tr>
+                                    <th>日期</th>
+                                    <th>身高(cm)</th>
+                                    <th>体重(kg)</th>
+                                    <th>收缩压</th>
+                                    <th>舒张压</th>
+                                    <th>血糖</th>
+                                    <th>胆固醇</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 数据将通过JavaScript动态加载 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 运动记录页面 -->
+                <section id="exercise-section" class="content-section">
+                    <div class="section-header">
+                        <h2>运动记录管理</h2>
+                        <button class="btn btn-primary" onclick="showAddExerciseModal()">
+                            <i class="fas fa-plus"></i> 添加记录
+                        </button>
+                    </div>
+                    
+                    <div class="data-table-container">
+                        <table class="data-table" id="exerciseTable">
+                            <thead>
+                                <tr>
+                                    <th>日期</th>
+                                    <th>运动类型</th>
+                                    <th>时长(分钟)</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 数据将通过JavaScript动态加载 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 睡眠记录页面 -->
+                <section id="sleep-section" class="content-section">
+                    <div class="section-header">
+                        <h2>睡眠记录管理</h2>
+                        <button class="btn btn-primary" onclick="showAddSleepModal()">
+                            <i class="fas fa-plus"></i> 添加记录
+                        </button>
+                    </div>
+                    
+                    <div class="data-table-container">
+                        <table class="data-table" id="sleepTable">
+                            <thead>
+                                <tr>
+                                    <th>日期</th>
+                                    <th>就寝时间</th>
+                                    <th>起床时间</th>
+                                    <th>睡眠时长</th>
+                                    <th>睡眠质量</th>
+                                    <th>深度睡眠</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 数据将通过JavaScript动态加载 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- 模态框 -->
+    <!-- 添加健康数据模态框 -->
+    <div id="addHealthDataModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加健康数据</h3>
+                <span class="close" onclick="closeModal('addHealthDataModal')">&times;</span>
+            </div>
+            <form id="healthDataForm" class="modal-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="recordDate">记录日期</label>
+                        <input type="datetime-local" id="recordDate" name="record_date" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="height">身高 (cm)</label>
+                        <input type="number" id="height" name="height" step="0.1" placeholder="例: 170.5">
+                    </div>
+                    <div class="form-group">
+                        <label for="weight">体重 (kg)</label>
+                        <input type="number" id="weight" name="weight" step="0.1" placeholder="例: 65.5">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="systolicPressure">收缩压</label>
+                        <input type="number" id="systolicPressure" name="systolic_pressure" placeholder="例: 120">
+                    </div>
+                    <div class="form-group">
+                        <label for="diastolicPressure">舒张压</label>
+                        <input type="number" id="diastolicPressure" name="diastolic_pressure" placeholder="例: 80">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bloodSugar">血糖</label>
+                        <input type="number" id="bloodSugar" name="blood_sugar" step="0.1" placeholder="例: 5.6">
+                    </div>
+                    <div class="form-group">
+                        <label for="cholesterol">胆固醇</label>
+                        <input type="number" id="cholesterol" name="cholesterol" step="0.1" placeholder="例: 4.5">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addHealthDataModal')">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 添加运动记录模态框 -->
+    <div id="addExerciseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加运动记录</h3>
+                <span class="close" onclick="closeModal('addExerciseModal')">&times;</span>
+            </div>
+            <form id="exerciseForm" class="modal-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="exerciseDate">运动日期</label>
+                        <input type="datetime-local" id="exerciseDate" name="log_date" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="exerciseType">运动类型</label>
+                        <select id="exerciseType" name="exercise_type" required>
+                            <option value="">请选择运动类型</option>
+                            <option value="跑步">跑步</option>
+                            <option value="游泳">游泳</option>
+                            <option value="骑行">骑行</option>
+                            <option value="健身">健身</option>
+                            <option value="瑜伽">瑜伽</option>
+                            <option value="篮球">篮球</option>
+                            <option value="足球">足球</option>
+                            <option value="网球">网球</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="duration">时长 (分钟)</label>
+                        <input type="number" id="duration" name="duration_minutes" required placeholder="例: 30">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addExerciseModal')">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 添加睡眠记录模态框 -->
+    <div id="addSleepModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加睡眠记录</h3>
+                <span class="close" onclick="closeModal('addSleepModal')">&times;</span>
+            </div>
+            <form id="sleepForm" class="modal-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sleepDate">睡眠日期</label>
+                        <input type="date" id="sleepDate" name="sleep_date" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bedtime">就寝时间</label>
+                        <input type="datetime-local" id="bedtime" name="bedtime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="wakeTime">起床时间</label>
+                        <input type="datetime-local" id="wakeTime" name="wake_time" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sleepQuality">睡眠质量 (1-10)</label>
+                        <input type="number" id="sleepQuality" name="sleep_quality" min="1" max="10" placeholder="例: 8">
+                    </div>
+                    <div class="form-group">
+                        <label for="deepSleep">深度睡眠 (小时)</label>
+                        <input type="number" id="deepSleep" name="deep_sleep_hours" step="0.1" placeholder="例: 2.5">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="sleepNotes">备注</label>
+                        <textarea id="sleepNotes" name="notes" rows="3" placeholder="睡眠质量描述、梦境记录等"></textarea>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addSleepModal')">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 加载提示 -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>加载中...</p>
+        </div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html> 

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthHero AI - 健康数据大屏</title>
+    <link rel="stylesheet" href="css/health-dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- 头部 -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <button class="back-btn" onclick="goBackToDashboard()" title="返回仪表盘">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>返回</span>
+                </button>
+                <div class="logo">
+                    <i class="fas fa-heartbeat"></i>
+                    <span>HealthHero AI</span>
+                </div>
+                <h1>健康数据监控大屏</h1>
+            </div>
+            <div class="header-right">
+                <div class="time-display" id="currentTime"></div>
+                <div class="user-controls">
+                    <select id="userSelect" class="user-selector" style="display: none;">
+                        <option value="">全局数据</option>
+                    </select>
+                    <select id="periodSelect" class="period-selector">
+                        <option value="7d">近7天</option>
+                        <option value="30d" selected>近30天</option>
+                        <option value="90d">近90天</option>
+                        <option value="1y">近1年</option>
+                    </select>
+                    <button class="refresh-btn" onclick="refreshAllData()">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主要内容区域 -->
+        <main class="dashboard-main">
+            <!-- 第一行：概览统计卡片 -->
+            <section class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="totalRecords">-</div>
+                        <div class="stat-label">我的记录数</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="totalUsers">1</div>
+                        <div class="stat-label">当前用户</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-weight"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="avgBMI">-</div>
+                        <div class="stat-label">我的BMI</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="avgBloodPressure">-</div>
+                        <div class="stat-label">我的血压</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-tint"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="avgBloodSugar">-</div>
+                        <div class="stat-label">我的血糖</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 第二行：趋势图表 -->
+            <section class="charts-row">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>体重趋势</h3>
+                        <div class="chart-controls">
+                            <button class="chart-btn active" data-metric="weight">体重</button>
+                            <button class="chart-btn" data-metric="bmi">BMI</button>
+                        </div>
+                    </div>
+                    <div class="chart-content">
+                        <canvas id="weightChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>血压趋势</h3>
+                        <div class="chart-controls">
+                            <button class="chart-btn active" data-metric="systolic">收缩压</button>
+                            <button class="chart-btn" data-metric="diastolic">舒张压</button>
+                        </div>
+                    </div>
+                    <div class="chart-content">
+                        <canvas id="bloodPressureChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 第三行：分布图表和用户列表 -->
+            <section class="bottom-row">
+                <div class="distribution-container">
+                    <div class="chart-header">
+                        <h3>健康指标分布</h3>
+                        <div class="chart-controls">
+                            <button class="chart-btn active" data-distribution="bmi_category">BMI分布</button>
+                            <button class="chart-btn" data-distribution="blood_pressure_category">血压分布</button>
+                            <button class="chart-btn" data-distribution="blood_sugar_category">血糖分布</button>
+                        </div>
+                    </div>
+                    <div class="chart-content">
+                        <canvas id="distributionChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="users-container">
+                    <div class="chart-header">
+                        <h3>用户健康状况</h3>
+                        <div class="chart-controls">
+                            <span class="user-count" id="userCount">共 - 位用户</span>
+                        </div>
+                    </div>
+                    <div class="users-list" id="usersList">
+                        <!-- 用户列表将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 加载指示器 -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>加载中...</span>
+            </div>
+        </div>
+
+        <!-- 错误提示 -->
+        <div class="error-toast" id="errorToast">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="errorMessage"></span>
+        </div>
+    </div>
+
+    <script>
+        // 返回仪表盘功能
+        function goBackToDashboard() {
+            // 尝试使用浏览器历史记录返回
+            if (document.referrer && document.referrer.includes('dashboard.html')) {
+                window.history.back();
+            } else {
+                // 直接跳转到仪表盘页面
+                window.location.href = 'dashboard.html';
+            }
+        }
+    </script>
+    <script src="js/health-dashboard.js"></script>
+</body>
+</html> 

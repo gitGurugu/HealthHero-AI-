@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 - HealthHero AI</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- 左侧背景区域 -->
+        <div class="left-section">
+            <div class="background-overlay">
+                <div class="hero-content">
+                    <h1 class="hero-title">
+                        <i class="fas fa-heartbeat"></i>
+                        HealthHero AI
+                    </h1>
+                    <p class="hero-subtitle">开始您的健康管理之旅</p>
+                    <div class="features">
+                        <div class="feature-item">
+                            <i class="fas fa-user-plus"></i>
+                            <span>快速注册</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>数据安全</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-mobile-alt"></i>
+                            <span>随时随地</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-heart"></i>
+                            <span>关爱健康</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧注册表单区域 -->
+        <div class="right-section">
+            <div class="login-container">
+                <div class="login-header">
+                    <h2>创建账户</h2>
+                    <p>加入HealthHero AI健康管理平台</p>
+                </div>
+
+                <form id="registerForm" class="login-form">
+                    <div class="form-group">
+                        <label for="email">邮箱地址 <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="email" name="email" placeholder="请输入有效的邮箱地址" required>
+                            <div class="field-hint">用于登录和接收通知</div>
+                        </div>
+                        <div class="error-hint" id="emailError" style="display: none;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="username">用户名 <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="username" name="username" placeholder="请输入用户名（3-20个字符）" required minlength="3" maxlength="20" pattern="^[a-zA-Z0-9_\u4e00-\u9fa5]+$">
+                            <div class="field-hint">支持中文、英文、数字和下划线</div>
+                        </div>
+                        <div class="error-hint" id="usernameError" style="display: none;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">密码 <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="password" name="password" placeholder="请输入密码（至少6位）" required minlength="6" maxlength="50">
+                            <button type="button" class="toggle-password" onclick="togglePassword('password')">
+                                <i class="fas fa-eye" id="toggleIcon1"></i>
+                            </button>
+                            <div class="field-hint">至少6个字符，建议包含字母和数字</div>
+                        </div>
+                        <div class="password-strength" id="passwordStrength" style="display: none;">
+                            <div class="strength-bar">
+                                <div class="strength-fill" id="strengthFill"></div>
+                            </div>
+                            <div class="strength-text" id="strengthText">密码强度：弱</div>
+                        </div>
+                        <div class="error-hint" id="passwordError" style="display: none;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">确认密码 <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="请再次输入密码" required minlength="6" maxlength="50">
+                            <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">
+                                <i class="fas fa-eye" id="toggleIcon2"></i>
+                            </button>
+                        </div>
+                        <div class="error-hint" id="confirmPasswordError" style="display: none;"></div>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="remember-me">
+                            <input type="checkbox" id="agreeTerms" required>
+                            <span class="checkmark"></span>
+                            我同意 <a href="#" class="forgot-password">服务条款</a> 和 <a href="#" class="forgot-password">隐私政策</a>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="login-btn">
+                        <span class="btn-text">注册</span>
+                        <div class="loading-spinner" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                    </button>
+
+                    <div class="signup-link">
+                        已有账户？ <a href="index.html">立即登录</a>
+                    </div>
+                </form>
+
+                <!-- 错误提示 -->
+                <div id="errorMessage" class="error-message" style="display: none;">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="errorText"></span>
+                </div>
+
+                <!-- 成功提示 -->
+                <div id="successMessage" class="success-message" style="display: none;">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="successText"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // 注册表单处理
+        document.addEventListener('DOMContentLoaded', function() {
+            const registerForm = document.getElementById('registerForm');
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            const registerBtn = document.querySelector('.login-btn');
+            const btnText = document.querySelector('.btn-text');
+            const loadingSpinner = document.querySelector('.loading-spinner');
+
+            // 获取表单元素
+            const emailInput = document.getElementById('email');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const agreeTermsInput = document.getElementById('agreeTerms');
+
+            // 实时验证状态
+            const validationState = {
+                email: false,
+                username: false,
+                password: false,
+                confirmPassword: false,
+                agreeTerms: false
+            };
+
+            // 邮箱验证
+            emailInput.addEventListener('blur', function() {
+                validateEmail(this.value.trim());
+            });
+
+            emailInput.addEventListener('input', function() {
+                clearFieldError('email');
+            });
+
+            // 用户名验证
+            usernameInput.addEventListener('blur', function() {
+                validateUsername(this.value.trim());
+            });
+
+            usernameInput.addEventListener('input', function() {
+                clearFieldError('username');
+            });
+
+            // 密码验证和强度检测
+            passwordInput.addEventListener('input', function() {
+                validatePassword(this.value);
+                updatePasswordStrength(this.value);
+                if (confirmPasswordInput.value) {
+                    validateConfirmPassword(confirmPasswordInput.value);
+                }
+            });
+
+            // 确认密码验证
+            confirmPasswordInput.addEventListener('input', function() {
+                validateConfirmPassword(this.value);
+            });
+
+            // 同意条款验证
+            agreeTermsInput.addEventListener('change', function() {
+                validationState.agreeTerms = this.checked;
+                updateSubmitButton();
+            });
+
+            if (registerForm) {
+                registerForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const email = emailInput.value.trim();
+                    const username = usernameInput.value.trim();
+                    const password = passwordInput.value;
+                    const confirmPassword = confirmPasswordInput.value;
+                    const agreeTerms = agreeTermsInput.checked;
+
+                    // 最终验证
+                    let isValid = true;
+                    
+                    if (!validateEmail(email)) isValid = false;
+                    if (!validateUsername(username)) isValid = false;
+                    if (!validatePassword(password)) isValid = false;
+                    if (!validateConfirmPassword(confirmPassword)) isValid = false;
+                    if (!agreeTerms) {
+                        showError('请同意服务条款和隐私政策');
+                        isValid = false;
+                    }
+
+                    if (!isValid) return;
+
+                    // 显示加载状态
+                    showLoading(true);
+                    hideMessages();
+
+                    try {
+                        const result = await authManager.register({
+                            email: email,
+                            username: username,
+                            password: password
+                        });
+                        
+                        if (result.success) {
+                            showSuccess('注册成功！正在跳转到登录页面...');
+                            
+                            // 延迟跳转到登录页面
+                            setTimeout(() => {
+                                window.location.href = 'index.html';
+                            }, 2000);
+                        } else {
+                            showError(result.error);
+                        }
+                    } catch (error) {
+                        console.error('注册处理错误:', error);
+                        showError('注册过程中发生错误，请重试');
+                    } finally {
+                        showLoading(false);
+                    }
+                });
+            }
+
+            // 验证函数
+            function validateEmail(email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                const isValid = email && emailRegex.test(email);
+                
+                if (!email) {
+                    showFieldError('email', '请输入邮箱地址');
+                    validationState.email = false;
+                } else if (!isValid) {
+                    showFieldError('email', '请输入有效的邮箱地址');
+                    validationState.email = false;
+                } else {
+                    showFieldSuccess('email');
+                    validationState.email = true;
+                }
+                
+                updateSubmitButton();
+                return isValid;
+            }
+
+            function validateUsername(username) {
+                const usernameRegex = /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/;
+                let isValid = true;
+                let errorMsg = '';
+
+                if (!username) {
+                    errorMsg = '请输入用户名';
+                    isValid = false;
+                } else if (username.length < 3) {
+                    errorMsg = '用户名至少需要3个字符';
+                    isValid = false;
+                } else if (username.length > 20) {
+                    errorMsg = '用户名不能超过20个字符';
+                    isValid = false;
+                } else if (!usernameRegex.test(username)) {
+                    errorMsg = '用户名只能包含中文、英文、数字和下划线';
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    showFieldError('username', errorMsg);
+                    validationState.username = false;
+                } else {
+                    showFieldSuccess('username');
+                    validationState.username = true;
+                }
+
+                updateSubmitButton();
+                return isValid;
+            }
+
+            function validatePassword(password) {
+                let isValid = true;
+                let errorMsg = '';
+
+                if (!password) {
+                    errorMsg = '请输入密码';
+                    isValid = false;
+                } else if (password.length < 6) {
+                    errorMsg = '密码长度至少为6位';
+                    isValid = false;
+                } else if (password.length > 50) {
+                    errorMsg = '密码长度不能超过50位';
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    showFieldError('password', errorMsg);
+                    validationState.password = false;
+                } else {
+                    clearFieldError('password');
+                    validationState.password = true;
+                }
+
+                updateSubmitButton();
+                return isValid;
+            }
+
+            function validateConfirmPassword(confirmPassword) {
+                const password = passwordInput.value;
+                let isValid = true;
+                let errorMsg = '';
+
+                if (!confirmPassword) {
+                    errorMsg = '请确认密码';
+                    isValid = false;
+                } else if (confirmPassword !== password) {
+                    errorMsg = '两次输入的密码不一致';
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    showFieldError('confirmPassword', errorMsg);
+                    validationState.confirmPassword = false;
+                } else {
+                    showFieldSuccess('confirmPassword');
+                    validationState.confirmPassword = true;
+                }
+
+                updateSubmitButton();
+                return isValid;
+            }
+
+            function updatePasswordStrength(password) {
+                const strengthIndicator = document.getElementById('passwordStrength');
+                const strengthFill = document.getElementById('strengthFill');
+                const strengthText = document.getElementById('strengthText');
+
+                if (!password) {
+                    strengthIndicator.style.display = 'none';
+                    return;
+                }
+
+                strengthIndicator.style.display = 'block';
+
+                let strength = 0;
+                let strengthLabel = '';
+                let strengthClass = '';
+
+                // 计算密码强度
+                if (password.length >= 6) strength++;
+                if (password.length >= 8) strength++;
+                if (/[a-z]/.test(password)) strength++;
+                if (/[A-Z]/.test(password)) strength++;
+                if (/[0-9]/.test(password)) strength++;
+                if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+                if (strength <= 2) {
+                    strengthLabel = '密码强度：弱';
+                    strengthClass = 'weak';
+                } else if (strength <= 4) {
+                    strengthLabel = '密码强度：中';
+                    strengthClass = 'medium';
+                } else {
+                    strengthLabel = '密码强度：强';
+                    strengthClass = 'strong';
+                }
+
+                strengthFill.className = `strength-fill ${strengthClass}`;
+                strengthText.className = `strength-text ${strengthClass}`;
+                strengthText.textContent = strengthLabel;
+            }
+
+            function showFieldError(fieldName, message) {
+                const input = document.getElementById(fieldName);
+                const errorElement = document.getElementById(fieldName + 'Error');
+                
+                input.classList.remove('valid');
+                input.classList.add('invalid');
+                errorElement.textContent = message;
+                errorElement.style.display = 'flex';
+            }
+
+            function showFieldSuccess(fieldName) {
+                const input = document.getElementById(fieldName);
+                const errorElement = document.getElementById(fieldName + 'Error');
+                
+                input.classList.remove('invalid');
+                input.classList.add('valid');
+                errorElement.style.display = 'none';
+            }
+
+            function clearFieldError(fieldName) {
+                const input = document.getElementById(fieldName);
+                const errorElement = document.getElementById(fieldName + 'Error');
+                
+                input.classList.remove('invalid', 'valid');
+                errorElement.style.display = 'none';
+            }
+
+            function updateSubmitButton() {
+                const allValid = Object.values(validationState).every(state => state);
+                registerBtn.disabled = !allValid;
+                
+                if (allValid) {
+                    registerBtn.style.opacity = '1';
+                    registerBtn.style.cursor = 'pointer';
+                } else {
+                    registerBtn.style.opacity = '0.6';
+                    registerBtn.style.cursor = 'not-allowed';
+                }
+            }
+
+            // 初始化按钮状态
+            updateSubmitButton();
+
+            // 显示错误消息
+            function showError(message) {
+                if (errorMessage) {
+                    document.getElementById('errorText').textContent = message;
+                    errorMessage.style.display = 'flex';
+                    successMessage.style.display = 'none';
+                }
+            }
+
+            // 显示成功消息
+            function showSuccess(message) {
+                if (successMessage) {
+                    document.getElementById('successText').textContent = message;
+                    successMessage.style.display = 'flex';
+                    errorMessage.style.display = 'none';
+                }
+            }
+
+            // 隐藏消息
+            function hideMessages() {
+                if (errorMessage) errorMessage.style.display = 'none';
+                if (successMessage) successMessage.style.display = 'none';
+            }
+
+            // 显示加载状态
+            function showLoading(show) {
+                if (show) {
+                    btnText.style.display = 'none';
+                    loadingSpinner.style.display = 'inline-block';
+                    registerBtn.disabled = true;
+                } else {
+                    btnText.style.display = 'inline';
+                    loadingSpinner.style.display = 'none';
+                    registerBtn.disabled = false;
+                }
+            }
+        });
+
+        // 密码显示/隐藏切换
+        function togglePassword(fieldId) {
+            const passwordField = document.getElementById(fieldId);
+            const toggleIcon = fieldId === 'password' ? document.getElementById('toggleIcon1') : document.getElementById('toggleIcon2');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+    </script>
+</body>
+</html> 

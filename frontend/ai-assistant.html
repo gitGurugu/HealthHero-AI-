@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI健康助手 - HealthHero</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/ai-assistant.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="ai-container">
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-robot"></i>
+                    <h2>AI健康助手</h2>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-details">
+                        <span class="user-name" id="userName">用户</span>
+                        <span class="user-status">在线</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 模式切换 -->
+            <div class="mode-selector">
+                <div class="mode-option active" data-mode="basic">
+                    <i class="fas fa-comments"></i>
+                    <span>普通咨询</span>
+                    <small>基础健康知识问答</small>
+                </div>
+                <div class="mode-option" data-mode="health">
+                    <i class="fas fa-user-md"></i>
+                    <span>个性化咨询</span>
+                    <small>基于您的健康数据</small>
+                </div>
+            </div>
+
+            <!-- 快捷问题 -->
+            <div class="quick-questions">
+                <h3>常见问题</h3>
+                <div class="question-list" id="quickQuestions">
+                    <!-- 动态加载 -->
+                </div>
+            </div>
+
+            <!-- 返回按钮 -->
+            <div class="sidebar-footer">
+                <button class="back-btn" onclick="window.location.href='dashboard.html'">
+                    <i class="fas fa-arrow-left"></i>
+                    返回仪表盘
+                </button>
+            </div>
+        </div>
+
+        <!-- 主聊天区域 -->
+        <div class="chat-main">
+            <!-- 聊天头部 -->
+            <div class="chat-header">
+                <div class="chat-title">
+                    <h3 id="chatTitle">AI健康助手</h3>
+                    <span class="chat-subtitle" id="chatSubtitle">为您提供专业的健康建议</span>
+                </div>
+                <div class="chat-actions">
+                    <button class="action-btn" id="clearChat" title="清空对话">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <button class="action-btn" id="exportChat" title="导出对话">
+                        <i class="fas fa-download"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 聊天消息区域 -->
+            <div class="chat-messages" id="chatMessages">
+                <div class="welcome-message">
+                    <div class="ai-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        <h4>👋 您好！我是您的AI健康助手</h4>
+                        <p>我可以为您提供：</p>
+                        <ul>
+                            <li>🔍 健康知识问答</li>
+                            <li>💡 个性化健康建议</li>
+                            <li>🏃‍♂️ 运动计划制定</li>
+                            <li>🥗 饮食营养指导</li>
+                            <li>😴 睡眠质量改善</li>
+                        </ul>
+                        <p>请选择咨询模式开始对话吧！</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 健康数据输入面板 -->
+            <div class="health-data-panel" id="healthDataPanel" style="display: none;">
+                <div class="panel-header">
+                    <h4>完善您的健康信息</h4>
+                    <p>为了提供更精准的建议，请填写以下信息：</p>
+                </div>
+                <div class="health-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>年龄</label>
+                            <input type="number" id="userAge" placeholder="请输入年龄">
+                        </div>
+                        <div class="form-group">
+                            <label>身高 (cm)</label>
+                            <input type="number" id="userHeight" placeholder="请输入身高">
+                        </div>
+                        <div class="form-group">
+                            <label>体重 (kg)</label>
+                            <input type="number" id="userWeight" placeholder="请输入体重">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>平均睡眠时长 (小时)</label>
+                            <input type="number" step="0.5" id="avgSleep" placeholder="例如：7.5">
+                        </div>
+                        <div class="form-group">
+                            <label>就寝时间</label>
+                            <input type="time" id="bedtime">
+                        </div>
+                        <div class="form-group">
+                            <label>起床时间</label>
+                            <input type="time" id="wakeTime">
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>运动禁忌或限制</label>
+                        <textarea id="exerciseContraindications" placeholder="如有运动禁忌或身体限制，请详细说明..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn-secondary" id="skipHealthData">跳过</button>
+                        <button class="btn-primary" id="saveHealthData">保存并继续</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 输入区域 -->
+            <div class="chat-input-area">
+                <div class="input-container">
+                    <textarea 
+                        id="messageInput" 
+                        placeholder="请输入您的问题..." 
+                        rows="1"
+                        maxlength="1000"
+                    ></textarea>
+                    <div class="input-actions">
+                        <button class="send-btn" id="sendMessage" disabled>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="input-footer">
+                    <span class="char-count">0/1000</span>
+                    <span class="typing-indicator" id="typingIndicator" style="display: none;">
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        AI正在思考...
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载遮罩 -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>AI正在思考中...</p>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/ai-assistant.js"></script>
+</body>
+</html> 

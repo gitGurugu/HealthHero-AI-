@@ -12,7 +12,7 @@ from app.db.session import SessionLocal
 from app.models.user import User
 
 reusable_oauth2 = OAuth2PasswordBearer(
-    tokenUrl=f"{settings.API_V1_STR}/user/login-with-wechat",
+    tokenUrl=f"{settings.API_V1_STR}/users/login",
 )
 
 def get_db() -> Generator:

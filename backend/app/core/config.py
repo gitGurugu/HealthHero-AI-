@@ -26,10 +26,19 @@ class Settings(BaseSettings):
     # API 配置
     API_V1_STR: str = Field("/api/v1", description="API版本路径")
     
+    # JWT 配置
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field( 60*24*6, description="访问令牌过期时间（分钟）")  #30s
+    
     # OpenAI 配置
     OPENAI_API_KEY: str = Field(..., description="OpenAI API密钥")
     OPENAI_BASE_URL: str = Field(..., description="OpenAI API基础URL")
     OPENAI_MODEL: str = Field("gpt-3.5-turbo", description="OpenAI模型名称")
+    
+    # RAG 优化配置
+    RAG_USE_OPTIMIZED: bool = Field(True, description="是否使用优化的RAG服务")
+    RAG_CACHE_TTL: int = Field(300, description="RAG缓存过期时间（秒）")
+    RAG_ENABLE_KEYWORD_SEARCH: bool = Field(True, description="是否启用关键词搜索")
+    RAG_EMBEDDING_CACHE_SIZE: int = Field(1000, description="Embedding缓存大小")
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:

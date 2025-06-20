@@ -1,9 +1,12 @@
 import logging
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from app.services.ai_service import AIAssistant
 from typing import Optional, List
 from app.schemas.ai_message import ChatMessage, ChatResponse
+import json
+import asyncio
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +56,33 @@ async def basic_chat(request: BasicChatRequest):
         logger.error(f"对话失败: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.post("/chat/stream")
+async def basic_chat_stream(request: BasicChatRequest):
+    """流式对话接口：用于一般性问题咨询（流式响应）"""
+    try:
+        async def generate():
+            try:
+                async for chunk in ai_assistant.get_response_stream(message=request.message):
+                    yield f"data: {json.dumps({'content': chunk, 'done': False}, ensure_ascii=False)}\n\n"
+                yield f"data: {json.dumps({'content': '', 'done': True}, ensure_ascii=False)}\n\n"
+            except Exception as e:
+                logger.error(f"流式对话失败: {str(e)}")
+                yield f"data: {json.dumps({'error': str(e), 'done': True}, ensure_ascii=False)}\n\n"
+        
+        return StreamingResponse(
+            generate(),
+            media_type="text/plain",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "*",
+            }
+        )
+    except Exception as e:
+        logger.error(f"流式对话初始化失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.post("/health/chat", response_model=ChatResponse)
 async def health_chat(request: HealthChatRequest):
     """健康咨询接口：用于提供个性化健康建议"""
@@ -68,6 +98,36 @@ async def health_chat(request: HealthChatRequest):
         )
     except Exception as e:
         logger.error(f"健康咨询失败: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/health/chat/stream")
+async def health_chat_stream(request: HealthChatRequest):
+    """流式健康咨询接口：用于提供个性化健康建议（流式响应）"""
+    try:
+        async def generate():
+            try:
+                async for chunk in ai_assistant.get_response_stream(
+                    message=request.message,
+                    user_data=request.user_data.dict(exclude_none=True)
+                ):
+                    yield f"data: {json.dumps({'content': chunk, 'done': False}, ensure_ascii=False)}\n\n"
+                yield f"data: {json.dumps({'content': '', 'done': True}, ensure_ascii=False)}\n\n"
+            except Exception as e:
+                logger.error(f"流式健康咨询失败: {str(e)}")
+                yield f"data: {json.dumps({'error': str(e), 'done': True}, ensure_ascii=False)}\n\n"
+        
+        return StreamingResponse(
+            generate(),
+            media_type="text/plain",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "*",
+            }
+        )
+    except Exception as e:
+        logger.error(f"流式健康咨询初始化失败: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/health/knowledge")
